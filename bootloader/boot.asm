@@ -20,7 +20,7 @@ start:
     ; Load next sector (sector 1 is already loaded)
     ; Load configuration:
     mov bx, 0x0002  ; load sector #2
-    mov cx, 0x0001  ; load 1 sector
+    mov cx, 0x0002  ; load 2 sector
     mov dx, 0x7E00  ; load the sector to location 0x7E00
                     ; (512 bytes gap)
 
@@ -47,6 +47,7 @@ start:
 boot_drive db 0x00
 times 510 - ($ - $$) db 0x00 ; Pad with zeros 
 dw 0xAA55 ; Magic number for the BIOS
+; == End Sector 1 == 
 
 ; == SECTOR 2 ==
 ; This is the second sector loaded with
@@ -66,27 +67,58 @@ bootsector_2:
     mov bx, msg_press_to_boot
     call print_bios
 
+    ; Wait for the user to continue
     call wait_for_key
 
-; -- Wait for the Enter key --
-; This will lock the CPU until key is pressed
-wait_for_key:
-    mov ah, 0x00 ; BIOS wait for key press function
-    int 0x16     ; Key in ax
-
-    cmp al, 0x0D ; Enter key code
-    jne wait_for_key 
-
-    ; Proceed to kernel boot (REPLACE IT)
+    ; Proceed to 32-bit protected mode boot
     call clear_screen
-    jmp $
+
+    ; The switch will load protected mode,
+    call switch_to_protected_mode
 
 %include "time.asm"
 %include "memory.asm"
-
+%include "gdt32.asm"
+%include "switch32.asm"
+%include "print32.asm"
+%include "paging32.asm"
 
 msg_press_to_boot db 'Press Enter to boot...', 0
+msg_protected_mode db '32-bit Protected Mode Loaded! Paging enabled', 0
 times 512 - ($ - bootsector_2) db 0x00
+; == End Sector 2 == 
+
+; == Sector 3 ==
+[bits 32]
+
+; This sector is loaded after the transition
+; to protected mode (32-bit code)
+bootsector_3:
+    ; Printing is done by changing the VGA memory directly
+    ; (no BIOS interrupts)
+
+    ; Setup paging for the virtual memory
+    call setup_paging
+
+    ; Print msg in 32-bit mode (print32.asm)
+    mov ebx, msg_protected_mode
+    call print_string_32
+
+    ; Switch to 64-bit long mode and enable paging
+    call switch_to_long_mode
 
 
+[bits 64]
+long_mode_sector:
+    ; Print msg in 64-bit mode (print64.asm)
+    mov rdi, msg_long_mode
+    call print_string_64
 
+    jmp $
+
+%include "gdt64.asm"
+%include "switch64.asm"
+%include "print64.asm"
+
+msg_long_mode: db 'Switched to 64-bit Long Mode!', 0
+; == End Sector 3 ==
