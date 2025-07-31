@@ -8,7 +8,7 @@ wait_for_key:
     int 0x16     ; Key in ax
 
     cmp al, 0x0D ; Enter key code
-    jne wait_for_key 
+    jne bootsector_2 ; Update Time for any other key
 
     ret
 

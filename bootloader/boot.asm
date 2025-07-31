@@ -1,6 +1,8 @@
 ; BIOS load the boot sector at 0x7C00
-[org 0x7C00]
+; [org 0x7C00]
+; Now handled by the linker file
 
+; == Sector 1 ==
 ; x86 starts in 16-bit real-mode, use 16-bit code 
 [bits 16]
 
@@ -20,7 +22,7 @@ start:
     ; Load next sector (sector 1 is already loaded)
     ; Load configuration:
     mov bx, 0x0002  ; load sector #2
-    mov cx, 0x0002  ; load 2 sector
+    mov cx, 0x0005  ; load 5 sector (Sector #2 - Kernel)
     mov dx, 0x7E00  ; load the sector to location 0x7E00
                     ; (512 bytes gap)
 
@@ -40,9 +42,9 @@ start:
     jmp bootsector_2
 
 ; Use the -i flag in NASM to include utils folder
-%include "load.asm"
-%include "print.asm"
-%include "splash.asm"
+%include "real_mode/load.asm"
+%include "real_mode/print.asm"
+%include "real_mode/splash.asm"
 
 boot_drive db 0x00
 times 510 - ($ - $$) db 0x00 ; Pad with zeros 
@@ -76,14 +78,14 @@ bootsector_2:
     ; The switch will load protected mode,
     call switch_to_protected_mode
 
-%include "time.asm"
-%include "memory.asm"
-%include "gdt32.asm"
-%include "switch32.asm"
-%include "print32.asm"
-%include "paging32.asm"
+%include "real_mode/time.asm"
+%include "real_mode/memory.asm"
+%include "protected_mode/gdt32.asm"
+%include "protected_mode/switch32.asm"
+%include "protected_mode/print32.asm"
+%include "protected_mode/paging32.asm"
 
-msg_press_to_boot db 'Press Enter to boot...', 0
+msg_press_to_boot db 'Press Enter to boot (or another key to refresh)...', 0
 msg_protected_mode db '32-bit Protected Mode Loaded! Paging enabled', 0
 times 512 - ($ - bootsector_2) db 0x00
 ; == End Sector 2 == 
@@ -114,11 +116,16 @@ long_mode_sector:
     mov rdi, msg_long_mode
     call print_string_64
 
-    jmp $
+    ; External kernel_start function (entry.asm)
+    extern kernel_start
 
-%include "gdt64.asm"
-%include "switch64.asm"
-%include "print64.asm"
+    ; Jump to kernel
+    call kernel_start
+
+%include "long_mode/gdt64.asm"
+%include "long_mode/switch64.asm"
+%include "long_mode/print64.asm"
 
 msg_long_mode: db 'Switched to 64-bit Long Mode!', 0
+; times 512 - ($ - bootsector_3) db 0x00
 ; == End Sector 3 ==

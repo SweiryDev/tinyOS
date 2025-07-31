@@ -76,4 +76,4 @@ print_two_chars:
     call print_char
     ret
 
-msg_boot_time db 'Time At Boot: ', 0
+msg_boot_time db 'Last Update Time: ', 0

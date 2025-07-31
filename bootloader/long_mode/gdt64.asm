@@ -27,7 +27,7 @@ gdt64_end:
 
 ; GDT descriptor
 gdt64_descriptor:
-    dw gdt64_end - gdt64_start ; Size
+    dw gdt64_end - gdt64_start - 1 ; Size
     dd gdt64_start             ; Start address 
 
 ; Segment Selector

@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "cstdint": "c",
+        "vga.h": "c",
+        "ports.h": "c"
+    }
+}

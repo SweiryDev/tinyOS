@@ -23,7 +23,6 @@ load_bios:
 
     ; Load the drive to read from boot_drive
     mov dl, byte[boot_drive]
-
     
     ; Interrupt to trigger BIOS disk read
     int 0x13
