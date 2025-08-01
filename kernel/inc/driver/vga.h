@@ -22,8 +22,8 @@
 #define COLOR_WHT 15    // White
 
 // Default VGA colors
-#define DEFAULT_COLOR_FG COLOR_GRN
-#define DEFAULT_COLOR_BG COLOR_BLK
+#define DEFAULT_COLOR_FG 2  // Green
+#define DEFAULT_COLOR_BG 0  // Black
 
 // VGA configuration
 #define VGA_START 0xB8000
@@ -35,17 +35,14 @@
 #define CURSOR_PORT_COMMAND     (uint16_t) 0x3D4
 #define CURSOR_PORT_DATA        (uint16_t) 0x3D5
 
-
 // 2 Byte VGA character styling
 typedef struct  __attribute__((packed)) {
     char character;
     char style;
 } vga_char;
 
-
 // Get the char to use as the style char
 uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color);
-
 
 // Clear the screen with a color
 void cleartext();

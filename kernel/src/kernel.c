@@ -1,15 +1,27 @@
-#include <types.h>
-#include <driver/vga.h>
 #include <cpu/ports.h>
+#include <driver/vga.h>
 
-// FIX VGA.C dont use global pointers!!!!!!!!!!!!!!
+const char *str = "Hi!";
 
-void main(){
+int main(){
     cleartext_color(COLOR_BLK, COLOR_GRN);
-    unsigned char* i = 0;
-    i[0xB8001] = ' ';
+    hide_cursor();
 
-    // putstr("Hello World!");
+    // VGA Test
+    putchar('\n');
+    putchar('0');
+    putstr(str);
+    putstr("\n\nNewLine!");
+    scroll_line();
+
+    uint8_t max = 0;
+    max = ~max;
     
-    while(1);
+    // Stress test:
+    while(1)
+    for(uint8_t i=0; i<max-1; i++){
+        putchar(i);
+    }
+
+    return 0;
 }

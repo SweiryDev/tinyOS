@@ -22,7 +22,7 @@ start:
     ; Load next sector (sector 1 is already loaded)
     ; Load configuration:
     mov bx, 0x0002  ; load sector #2
-    mov cx, 0x0005  ; load 5 sector (Sector #2 - Kernel)
+    mov cx, 0x0045  ; load sectors (Sector #2 - Kernel)
     mov dx, 0x7E00  ; load the sector to location 0x7E00
                     ; (512 bytes gap)
 
@@ -127,5 +127,5 @@ long_mode_sector:
 %include "long_mode/print64.asm"
 
 msg_long_mode: db 'Switched to 64-bit Long Mode!', 0
-; times 512 - ($ - bootsector_3) db 0x00
+; times 510 - ($ - bootsector_3) db 0x00
 ; == End Sector 3 ==

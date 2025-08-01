@@ -1,4 +1,3 @@
-
 #include <cpu/ports.h>
 
 uint8_t byte_in(uint16_t port){

@@ -1,7 +1,7 @@
 #include <cpu/ports.h>
 #include <driver/vga.h>
 
-// DONT USE GLOBAL POINTERS!
+// Global pointer to VGA text cell
 volatile vga_char *VGA_TEXT = (vga_char*) VGA_START;
 
 uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color){
@@ -10,22 +10,10 @@ uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color){
 }
 
 void cleartext(){
-    volatile vga_char *VGA_TEXT = (vga_char*) VGA_START;
-    const char space = ' ';
-    uint8_t clear_color = vga_color(DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
-
-    const vga_char clear_char = {
-        .character = space,
-        .style = clear_color
-    };
-
-    for(uint64_t i = 0; i < VGA_EXTENT; i++) {
-        VGA_TEXT[i] = clear_char;
-    }
+    cleartext_color(DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
 }
 
 void cleartext_color(uint8_t fg_color, uint8_t bg_color){
-    volatile vga_char *VGA_TEXT = (vga_char*) VGA_START;
     const char space = ' ';
     uint8_t clear_color = vga_color(fg_color, bg_color);
 
@@ -40,50 +28,7 @@ void cleartext_color(uint8_t fg_color, uint8_t bg_color){
 }
 
 void putchar(const char character){
-    uint16_t position = get_cursor_pos();
-
-    if (character == '\n'){
-        uint8_t current_row = (uint8_t) (position / VGA_WIDTH);
-
-        if (++current_row >= VGA_HEIGHT){
-            scroll_line();
-        }
-        else{
-            set_cursor_pos(0, current_row);
-        }
-    }
-
-    else if (character == '\b'){
-        reverse_cursor();
-        putchar_color(' ', DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
-        reverse_cursor();
-    }
-
-    else if (character == '\r'){
-        uint8_t current_row = (uint8_t) (position / VGA_WIDTH);
-
-        set_cursor_pos(0, current_row);
-    }
-
-    else if (character == '\t'){
-        // Tab = 4 spaces
-        for (uint8_t i = 0; i < 4; i++){
-            putchar_color(' ', DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
-        }
-        advance_cursor();
-    }
-
-    else {
-        uint8_t style = vga_color(DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
-        vga_char printed = {
-            .character = character,
-            .style = style
-        };
-
-        VGA_TEXT[position] = printed;
-
-        advance_cursor();
-    }
+    putchar_color(character, DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
 }
 
 void putchar_color(const char character, const uint8_t fg_color, const uint8_t bg_color){
@@ -121,6 +66,11 @@ void putchar_color(const char character, const uint8_t fg_color, const uint8_t b
     }
 
     else {
+
+        if(position == VGA_EXTENT){
+            scroll_line();
+        }
+
         uint8_t style = vga_color(fg_color, bg_color);
         vga_char printed = {
             .character = character,
@@ -134,9 +84,7 @@ void putchar_color(const char character, const uint8_t fg_color, const uint8_t b
 }
 
 void putstr(const char *string){
-    while (*string != '\0'){
-        putchar_color(*string++, DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
-    }
+    putstr_color(string, DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
 }
 
 void putstr_color(const char *string, const uint8_t fg_color, const uint8_t bg_color){

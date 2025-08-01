@@ -6,7 +6,7 @@ mv boot ../boot
 
 cd ../kernel
 nasm -f elf64 entry.asm -o entry.o
-clang -ggdb -c -ffreestanding -target x86_64-none-elf -Iinc src/kernel.c src/cpu/ports.c src/driver/vga.c
+clang -ggdb -c -ffreestanding -mno-red-zone -target x86_64-none-elf -Iinc src/kernel.c src/cpu/ports.c src/driver/vga.c
 # make # FIX IT!
 mv entry.o ../entry.o
 mv kernel.o ../kernel.o
