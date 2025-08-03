@@ -1,5 +1,5 @@
-#ifndef __CPU_PORTS
-#define __CPU_PORTS
+#ifndef __PORTS
+#define __PORTS
 
 #include <types.h>
 

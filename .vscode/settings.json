@@ -2,6 +2,7 @@
     "files.associations": {
         "cstdint": "c",
         "vga.h": "c",
-        "ports.h": "c"
+        "ports.h": "c",
+        "isr.h": "c"
     }
 }
