@@ -3,6 +3,7 @@
 #include <driver/vga.h>
 #include <cpu/isr.h>
 #include <cpu/pic.h>
+#include <driver/keyboard.h>
 
 // Initialize the kernel 
 void init_kernel();
@@ -11,7 +12,7 @@ void div_by_zero();
 int main(){
     init_kernel();
 
-    div_by_zero(); // Test division by zero interrupt
+    // div_by_zero(); // Test division by zero interrupt
 
     return 0;
 }
@@ -21,6 +22,7 @@ void init_kernel(){
     isr_install();
     irq_install();
     pic_remap();
+    init_keyboard();
 
     // Critical: Enable interrupts!
     __asm__ __volatile__ ("sti");

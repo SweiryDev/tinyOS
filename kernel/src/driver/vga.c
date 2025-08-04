@@ -4,6 +4,9 @@
 // Global pointer to VGA text cell
 volatile vga_char *VGA_TEXT = (vga_char*) VGA_START;
 
+// Remove null_space on reverse cursor ?
+static uint8_t remove_null_space = 1;
+
 uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color){
     // Mask and shift for correct VGA text format
     return (bg_color << 4) | (fg_color & 0x0F);
@@ -14,11 +17,11 @@ void cleartext(){
 }
 
 void cleartext_color(uint8_t fg_color, uint8_t bg_color){
-    const char space = ' ';
+    const char null_space = 0;
     uint8_t clear_color = vga_color(fg_color, bg_color);
 
     const vga_char clear_char = {
-        .character = space,
+        .character = null_space,
         .style = clear_color
     };
 
@@ -46,8 +49,10 @@ void putchar_color(const char character, const uint8_t fg_color, const uint8_t b
     }
 
     else if (character == '\b'){
+        remove_null_space = 0;
         reverse_cursor();
         putchar_color(' ', fg_color, bg_color);
+        remove_null_space = 1;
         reverse_cursor();
     }
 
@@ -151,6 +156,11 @@ void reverse_cursor(){
 
     byte_out(CURSOR_PORT_COMMAND, 0x0E);
     byte_out(CURSOR_PORT_DATA, (unsigned char) ((pos >> 8) & 0xFF));
+
+    // Keep on removing null_space characters
+    if(VGA_TEXT[pos-1].character == 0 && remove_null_space){
+        reverse_cursor();
+    }
 }
 
 
@@ -187,7 +197,7 @@ void scroll_line(){
 
         vga_char current = VGA_TEXT[pos];
         vga_char clear = {
-            .character=' ',
+            .character=0,
             .style = current.style
         };
 

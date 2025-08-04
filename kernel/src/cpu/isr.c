@@ -13,6 +13,13 @@ const char *exception_messages[] = {
     "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved"
 };
 
+// Interrupt handlers array
+isr_t interrupt_handlers[256];
+
+void register_interrupt_handler(uint8_t interrupt_number, isr_t handler){
+    interrupt_handlers[interrupt_number] = handler;
+}
+
 // Main C handler for assembly stubs call
 void isr_handler(registers_t *regs) {
     putstr_color("Received Interrupt: ", COLOR_WHT, COLOR_RED);
@@ -63,6 +70,12 @@ void isr_install() {
 
 // C handler for all hardware interrupts
 void irq_handler(registers_t *regs) {
+    // Call custom handler function
+    if(interrupt_handlers[regs->int_no] != 0){
+        isr_t handler = interrupt_handlers[regs->int_no];
+        handler(regs);
+    }
+    
     // Send an End-of-Interrupt (EOI) signal to the PICs.
     // This is critical, otherwise the PIC won't send any more interrupts.
     if (regs->int_no >= 40) {

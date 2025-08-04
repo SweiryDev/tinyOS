@@ -10,9 +10,14 @@ typedef struct __attribute__((packed)) {
     uint64_t int_no, err_code; // Pushed by our ISR stubs
 } registers_t;
 
+// Function Pointer type for interrupt handler
+typedef void (*isr_t)(registers_t*);
+
+// Register custom handler for a given interrupt
+void register_interrupt_handler(uint8_t interrupt_number, isr_t handler);
+
 // C level interrupt handler called from assembly 
 void isr_handler(registers_t *regs);
-
 void isr_install();
 
 // 32 assembly ISR stubs 
@@ -49,6 +54,7 @@ extern void isr_29();
 extern void isr_30();
 extern void isr_31();
 
+void irq_handler(registers_t *regs);
 void irq_install();
 
 // IRQ stubs
