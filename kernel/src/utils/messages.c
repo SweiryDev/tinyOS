@@ -1,5 +1,4 @@
-#ifndef __MSGS
-#define __MSGS
+#include <utils/messages.h>
 
 const char *kernel_msg =
     "   __      __                       ______    ______  \n"
@@ -13,8 +12,8 @@ const char *kernel_msg =
     "    \\$$$$  \\$$ \\$$   \\$$ _\\$$$$$$$  \\$$$$$$   \\$$$$$$\n"
     "                        |  \\__| $$                    \n"
     "                         \\$$    $$                    \n"
-    "                          \\$$$$$$                     \n"
-    " == Kernel Mode == \n";
+    "                          \\$$$$$$                     \n\n";
 
-
-#endif
+const char *fetch_msg = 
+    "tinyOS - FETCH MESSAGE\n"
+    "NEED TO UPDATE MESSAGE!\n";

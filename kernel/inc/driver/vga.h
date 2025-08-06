@@ -54,8 +54,10 @@ void putchar(const char character);
 void putchar_color(const char character, const uint8_t fg_color, const uint8_t bg_color);
 
 // Print a string to the screen
+void putstrf(const char *string, const void *arg);
 void putstr(const char *string);
 void putstr_color(const char *string, const uint8_t fg_color, const uint8_t bg_color);
+
 
 // Get the cursor position
 uint16_t get_cursor_pos();

@@ -3,6 +3,9 @@
         "cstdint": "c",
         "vga.h": "c",
         "ports.h": "c",
-        "isr.h": "c"
+        "isr.h": "c",
+        "types.h": "c",
+        "keyboard.h": "c",
+        "messages.h": "c"
     }
 }

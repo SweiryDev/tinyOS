@@ -25,6 +25,7 @@ void isr_handler(registers_t *regs) {
     putstr_color("Received Interrupt: ", COLOR_WHT, COLOR_RED);
     putstr_color(exception_messages[regs->int_no], COLOR_WHT, COLOR_RED);
     
+    // Ignore for now...
     // Halt the system. In a real OS, we might try to recover.
     while(1) __asm__("hlt");
 }

@@ -1,5 +1,7 @@
 #include <cpu/ports.h>
 #include <driver/vga.h>
+#include <utils/utils.h>
+#include <memory/heap.h>
 
 // Global pointer to VGA text cell
 volatile vga_char *VGA_TEXT = (vga_char*) VGA_START;
@@ -88,16 +90,85 @@ void putchar_color(const char character, const uint8_t fg_color, const uint8_t b
     }
 }
 
+void putstrf(const char *string, const void *arg){
+
+    while(*string != '\0'){
+
+        if(*string == '%'){
+        
+            if(*(string + 1) == 'd' || *(string + 1) == 'D'){  // Write integer (base 10)
+                char *tmp = itoa(*((int*)arg), 10);
+                int i = 0;
+            
+                while(*(tmp + i) != '\0'){
+                    putchar(tmp[i]);
+                    i++;
+                }
+            
+                kfree(tmp);
+                string++;
+            }
+            else if (*(string + 1) == 'x' || *(string + 1) == 'X'){ // Write integer (base 16)
+                char *tmp = itoa(*((int*)arg), 16);
+                int i = 0;
+            
+                while(*(tmp + i) != '\0'){
+                    putchar(tmp[i]);
+                    i++;
+                }
+            
+                kfree(tmp);
+                string++;
+            }
+            else if (*(string + 1) == 'b' || *(string + 1) == 'B'){ // Write integer (base 2)
+                char *tmp = itoa(*((int*)arg), 2);
+                int i = 0;
+            
+                while(*(tmp + i) != '\0'){
+                    putchar(tmp[i]);
+                    i++;
+                }
+            
+                kfree(tmp);
+                string++;
+            }
+            else if (*(string + 1) == 'p' || *(string + 1) == 'P'){ // Write pointer address (base 16)
+                char *tmp = itoa((uint64_t)arg, 16);
+                int i = 0;
+            
+                while(*(tmp + i) != '\0'){
+                    putchar(tmp[i]);
+                    i++;
+                }
+            
+                kfree(tmp);
+                string++;
+            
+            }else{
+            
+                putchar('%');
+            
+            }
+        }else{
+            
+            putchar(*string);
+        
+        }
+
+        string++;
+    }
+}
+
 void putstr(const char *string){
     putstr_color(string, DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
 }
 
 void putstr_color(const char *string, const uint8_t fg_color, const uint8_t bg_color){
+    
     while (*string != '\0'){
         putchar_color(*string++, fg_color, bg_color);
     }
 }
-
 
 uint16_t get_cursor_pos(){
     uint16_t position = 0;

@@ -1,0 +1,77 @@
+#include <utils/utils.h>
+#include <memory/heap.h>
+#include <types.h>
+
+uint64_t str_len(const char* str){
+    uint64_t counter = 0;
+
+    while(*(str + counter) != '\0'){
+        counter++;
+    }
+
+    return counter;
+}
+
+void reverse(char* str){
+    uint64_t i = 0;
+    uint64_t j = str_len(str) - 1;
+
+    while (i < j)
+    {
+        char tmp = str[i];
+        str[i] = str[j];
+        str[j] = tmp;
+        j--;
+        i++;
+    }   
+}
+
+char* itoa(int num, int base){
+    int i=0;
+    int isNegative = 0;
+
+    // Allocate 20 characters
+    char *str = (char*)kmalloc(21);
+
+    if(num == 0){
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
+    }
+
+    if(num < 0 && base == 10){
+        isNegative = 1;
+        num = -num;
+    }
+
+    while (num != 0){
+        int rem = num % base;
+        str[i++] = (rem > 9) ? (rem - 10) + 'A' : rem + '0';
+        num = num / base;
+    }
+
+    if(isNegative)
+        str[i++] = '-';
+    
+    str[i] = '\0';
+
+    reverse(str);
+
+    return str;
+}
+
+int strcmp(const char *s1, const char *s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
+void *memset(void *s, int c, uint64_t n) {
+    unsigned char *p = s;
+    while (n--) {
+        *p++ = (unsigned char)c;
+    }
+    return s;
+}

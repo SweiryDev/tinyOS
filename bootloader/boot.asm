@@ -22,7 +22,7 @@ start:
     ; Load next sector (sector 1 is already loaded)
     ; Load configuration:
     mov bx, 0x0002  ; load sector #2
-    mov cx, 0x0075  ; load sectors (Sector #2 - Kernel)
+    mov cx, 0x0080  ; load sectors (Sector #2 - Kernel)
     mov dx, 0x7E00  ; load the sector to location 0x7E00
                     ; (512 bytes gap)
 

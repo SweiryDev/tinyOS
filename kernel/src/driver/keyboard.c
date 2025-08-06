@@ -3,6 +3,7 @@
 #include <cpu/ports.h>
 #include <cpu/isr.h>
 #include <types.h>
+#include <shell/shell.h>
 
 static uint8_t shift_pressed = 0;
 
@@ -62,8 +63,7 @@ static void keyboard_callback(registers_t *regs) {
     char ascii_char = map[scancode];
     
     if (ascii_char) {
-        char str[2] = {ascii_char, 0};
-        putstr_color(str, DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
+        shell_keyboard_handler(ascii_char);
     }
 }
 
