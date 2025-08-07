@@ -7,5 +7,6 @@
         "types.h": "c",
         "keyboard.h": "c",
         "messages.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

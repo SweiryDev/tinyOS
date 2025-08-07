@@ -3,6 +3,8 @@
 #include <utils/utils.h>
 #include <types.h>
 #include <utils/messages.h>
+#include <driver/rtc.h>
+#include <memory/heap.h>
 
 // Input buffer and index
 #define CMD_BUFFER_SIZE 256
@@ -14,7 +16,7 @@ void process_command() {
 
     // Commands
     if (strcmp(cmd_buffer, "help") == 0) {
-        putstr("tinyOS v0.1. Commands: help, clear, fetch\n");
+        putstr("tinyOS v0.1. Commands: help, clear, time, fetch\n");
     } else if (strcmp(cmd_buffer, "clear") == 0) {
         cleartext();
         set_cursor_pos(0,0);
@@ -23,6 +25,17 @@ void process_command() {
     } else if(strcmp(cmd_buffer, "fetch") == 0){
         putstr(kernel_msg);
         putstr(fetch_msg);
+    }else if(strcmp(cmd_buffer, "time") == 0){
+        rtc_time_t current_time;
+        rtc_read_time(&current_time);
+
+        char *timestr = time_string(&current_time);
+        char *datestr = date_string(&current_time);
+        putstrf("Time: %s", timestr);
+        putstrf(" | Date: %s\n", datestr);
+
+        kfree(timestr);
+        kfree(datestr);
     } else {
         putstr("Unknown command: ");
         putstr(cmd_buffer);

@@ -144,7 +144,18 @@ void putstrf(const char *string, const void *arg){
                 kfree(tmp);
                 string++;
             
-            }else{
+            } else if(*(string + 1) == 's' || *(string + 1) == 'S'){ // Write string
+                // Format string
+                char* tmp = (char*) arg;
+                int i = 0;
+
+                while(*(tmp + i) != '\0'){
+                    putchar(tmp[i]);
+                    i++;
+                }
+
+                string++;
+            } else{
             
                 putchar('%');
             

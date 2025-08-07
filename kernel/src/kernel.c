@@ -6,11 +6,12 @@
 #include <memory/heap.h>
 #include <utils/utils.h>
 #include <shell/shell.h>
+#include <driver/serial.h>
 #include <driver/keyboard.h>
+#include <driver/rtc.h>
 
 
-// Functions Signatures
-
+// -- Functions Signatures --
 // Initialize the kernel 
 void init_kernel();
 
@@ -18,12 +19,14 @@ void init_kernel();
 void div_by_zero();
 void test_heap();
 void print_formatted();
+void print_serial();
+void print_rtc();
 
+// ----
 
 int main(){
     // Initialize the kernel
     init_kernel();
-
 
     return 0;
 }
@@ -33,11 +36,13 @@ void init_kernel(){
     isr_install();
     irq_install();
     pic_remap();
+    init_serial();
     init_heap(); 
     init_keyboard();
 
     // Critical: Enable interrupts!
     __asm__ __volatile__ ("sti");
+    
 
     // Clear screen and hide the cursor
     cleartext();
@@ -88,4 +93,44 @@ void print_formatted(){
     int x = 17847;
     // '%d'-Base 10, '%b'-Base 2, '%x'-Base 16, '%p'-Pointer address.
     putstrf("The Number Is: %b! ", &x);
+}
+
+void print_serial(){
+    // COM1 serial port print
+    serial_print("tinyOS Serial Driver Initialized!\n");
+}
+
+void print_rtc() {
+    // Define time structure and read time and date
+    rtc_time_t current_time;
+    rtc_read_time(&current_time);
+
+    // Format time and date to string
+    char *timestr = time_string(&current_time);
+    char *datestr = date_string(&current_time);
+    
+    // Print time and date
+    putstrf("\nTime: %s", timestr);
+    putstrf(" | Date: %s", datestr);
+
+    // Free...
+    kfree(timestr);
+    kfree(datestr);
+
+    // Print to serial
+    serial_print("RTC Time: ");
+    serial_print(itoa(current_time.hour, 10));
+    serial_print(":");
+    serial_print(itoa(current_time.minute, 10));
+    serial_print(":");
+    serial_print(itoa(current_time.second, 10));
+
+    serial_print(" | Date: ");
+    serial_print(itoa(current_time.day, 10));
+    serial_print("/");
+    serial_print(itoa(current_time.month, 10));
+    serial_print("/");
+    serial_print(itoa(current_time.year, 10));
+    serial_print("\n");
+
 }
