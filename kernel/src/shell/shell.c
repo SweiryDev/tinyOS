@@ -5,6 +5,7 @@
 #include <utils/messages.h>
 #include <driver/rtc.h>
 #include <memory/heap.h>
+#include <memory/pmm.h>
 
 // Input buffer and index
 #define CMD_BUFFER_SIZE 256
@@ -16,16 +17,36 @@ void process_command() {
 
     // Commands
     if (strcmp(cmd_buffer, "help") == 0) {
-        putstr("tinyOS v0.1. Commands: help, clear, time, fetch\n");
+        // Print help message
+        putstr(help_msg);
+
     } else if (strcmp(cmd_buffer, "clear") == 0) {
+        // Clear shell
         cleartext();
         set_cursor_pos(0,0);
+    
     } else if (strcmp(cmd_buffer, "") == 0){
         // No command
+    
     } else if(strcmp(cmd_buffer, "fetch") == 0){
+        // Print Fetch messages
         putstr(kernel_msg);
         putstr(fetch_msg);
-    }else if(strcmp(cmd_buffer, "time") == 0){
+        
+        init_pmm(0);
+
+        // Get total memory in KB
+        uint64_t total_mem_mb = pmm_get_total_memory_mb();
+        char* mem_str = itoa(total_mem_mb, 10);
+        
+        // Print the information
+        putstrf("Memory: %s KB\n", mem_str);
+
+        // Free the allocated string
+        kfree(mem_str);
+    
+    } else if(strcmp(cmd_buffer, "time") == 0){
+        // Print time and dat from the RTC
         rtc_time_t current_time;
         rtc_read_time(&current_time);
 
@@ -36,7 +57,13 @@ void process_command() {
 
         kfree(timestr);
         kfree(datestr);
+    
+    } else if(strcmp(cmd_buffer, "memorymap") == 0) {
+        // Print memory map from BIOS
+        init_pmm(1);
+
     } else {
+        // Unknown command...
         putstr("Unknown command: ");
         putstr(cmd_buffer);
         putstr("\n");

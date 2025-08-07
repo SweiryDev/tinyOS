@@ -1,14 +1,20 @@
-#include <utils/messages.h>
 #include <cpu/ports.h>
-#include <driver/vga.h>
 #include <cpu/isr.h>
 #include <cpu/pic.h>
-#include <memory/heap.h>
+
+#include <utils/messages.h>
 #include <utils/utils.h>
-#include <shell/shell.h>
+
+#include <driver/vga.h>
 #include <driver/serial.h>
 #include <driver/keyboard.h>
 #include <driver/rtc.h>
+
+#include <memory/heap.h>
+#include <memory/pmm.h>
+
+#include <shell/shell.h>
+
 
 
 // -- Functions Signatures --

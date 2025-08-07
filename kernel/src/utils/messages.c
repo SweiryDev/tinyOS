@@ -17,3 +17,13 @@ const char *kernel_msg =
 const char *fetch_msg = 
     "tinyOS - FETCH MESSAGE\n"
     "NEED TO UPDATE MESSAGE!\n";
+
+const char *help_msg = 
+    "tinyOS v0.1. \n"
+    "Commands:\n"
+    "help - print this memory\n"
+    "clear - clear the shell\n"
+    "time - print time and date from the RTC\n"
+    "fetch - print software and hardware info\n"
+    "memorymap - print memory map from the BIOS\n";
+

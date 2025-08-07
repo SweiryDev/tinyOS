@@ -38,8 +38,8 @@ start:
     ; Show Splash screen
     call print_splash
 
-    ; Go to sector 2
-    jmp bootsector_2
+    ; Go to sector memory read
+    jmp bootsector_memory
 
 ; Use the -i flag in NASM to include utils folder
 %include "real_mode/load.asm"
@@ -50,7 +50,23 @@ boot_drive db 0x00
 times 510 - ($ - $$) db 0x00 ; Pad with zeros 
 dw 0xAA55 ; Magic number for the BIOS
 ; == End Sector 1 == 
+; == Read Memory Sector ==
 
+bootsector_memory:
+    ; Address to store the E820 map and its entry count
+    E820_MAP_ADDR equ 0x9000
+    E820_COUNT_ADDR equ 0x8E00
+
+    call detect_memory ; call memory detection
+
+    ; Jump to bootsector 2
+    jmp bootsector_2
+
+%include "real_mode/readmemory.asm"
+
+times 512 - ($ - bootsector_memory) db 0x00
+
+; == End Memory Sector == 
 ; == SECTOR 2 ==
 ; This is the second sector loaded with
 ; with load_bios (bx=2)
@@ -77,6 +93,7 @@ bootsector_2:
 
     ; The switch will load protected mode,
     call switch_to_protected_mode
+
 
 %include "real_mode/time.asm"
 %include "real_mode/memory.asm"
@@ -121,11 +138,12 @@ long_mode_sector:
 
     ; Jump to kernel
     call kernel_start
+    
 
 %include "long_mode/gdt64.asm"
 %include "long_mode/switch64.asm"
 %include "long_mode/print64.asm"
 
 msg_long_mode: db 'Switched to 64-bit Long Mode!', 0
-; times 510 - ($ - bootsector_3) db 0x00
+times 512 - ($ - bootsector_3) db 0x00
 ; == End Sector 3 ==
