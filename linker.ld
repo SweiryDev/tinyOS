@@ -16,6 +16,9 @@ SECTIONS {
     /* Kernel section starts at 1MB mark (for bootloader separation) */
     . = 0x10000;
 
+    /* Symbol of physical start address of the kernel */
+    _kernel_start = .;
+
     /* Include object files with sections of kernel and merge */
     .kernel : {
         *(.text*)
@@ -23,5 +26,8 @@ SECTIONS {
         *(.data*)
         *(.bss*)
     }
+
+    /* Symbol of physical end address of the kernel */
+    _kernel_end = .;
 
 }

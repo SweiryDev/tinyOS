@@ -38,17 +38,17 @@ int main(){
 }
 
 void init_kernel(){
-    // Install Interrupt Service Routine
+    // Installation and initialization
     isr_install();
     irq_install();
     pic_remap();
     init_serial();
     init_heap(); 
+    init_pmm();
     init_keyboard();
 
     // Critical: Enable interrupts!
     __asm__ __volatile__ ("sti");
-    
 
     // Clear screen and hide the cursor
     cleartext();

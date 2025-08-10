@@ -33,8 +33,6 @@ void process_command() {
         putstr(kernel_msg);
         putstr(fetch_msg);
         
-        init_pmm(0);
-
         // Get total memory in KB
         uint64_t total_mem_mb = pmm_get_total_memory_mb();
         char* mem_str = itoa(total_mem_mb, 10);
@@ -60,7 +58,8 @@ void process_command() {
     
     } else if(strcmp(cmd_buffer, "memorymap") == 0) {
         // Print memory map from BIOS
-        init_pmm(1);
+        pmm_print_map();
+        pmm_print_kernel_info();
 
     } else {
         // Unknown command...
