@@ -118,11 +118,11 @@ void init_pmm() {
         }
     } 
 
-    // Reserve memory used by the kernel and bitmap
+    // Reserve memory used by the kernel, bios, and bitmap
     uint64_t kernel_start_addr = (uint64_t)&_kernel_start;
     uint64_t kernel_end_addr = (uint64_t)&_kernel_end;
 
-    for(uint64_t addr=kernel_start_addr; addr<kernel_end_addr; addr+=4096){
+    for(uint64_t addr=0; addr<kernel_end_addr; addr+=4096){
         uint64_t page_num = addr/4096;
         // Set bit for this page (used)
         pmm_bitmap[page_num/8] |= (1 << (page_num % 8));
@@ -142,5 +142,42 @@ void init_pmm() {
 // Total usable memory in megabytes.
 uint64_t pmm_get_total_memory_mb() {
     return total_memory_kb / 1024;
+}
+
+// Allocate a single 4KB page of physical memory
+// Return a pointer to the start of the allocated page (or 0 if no free space)
+void* pmm_alloc_page(){
+    // Iterate the entire bitmap
+    for(uint64_t i=0; i<pmm_bitmap_size; i++){
+        // Check for available page (!= 0xFF), iterate bytes
+        if(pmm_bitmap[i] != 0xFF){
+            // Iterate bits of this byte
+            for(uint8_t j=0; j<8; j++){
+                // Find free page (0 bit)
+                if(!(pmm_bitmap[i] & (1<<j))){
+                    // Calculate page number
+                    uint64_t page_num = i*8 + j;
+
+                    // Mark as used (set bit)
+                    pmm_bitmap[i] |= (1<<j);
+
+                    // Return physical address of page start
+                    return (void*)(page_num * 4096);
+                }
+            }
+        }
+    }
+
+    // No free pages
+    return 0;
+}
+
+// Free allocated 4KB page
+void pmm_free_page(void* ptr){
+    // Calculate page number
+    uint64_t page_num = (uint64_t)ptr/4096;
+    
+    // Mark as free (clear bit)
+    pmm_bitmap[page_num/8] &= ~(1 << (page_num % 8));
 }
 

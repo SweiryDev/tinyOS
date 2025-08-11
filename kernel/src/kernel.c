@@ -12,6 +12,7 @@
 
 #include <memory/heap.h>
 #include <memory/pmm.h>
+#include <memory/vmm.h>
 
 #include <shell/shell.h>
 
@@ -27,7 +28,7 @@ void test_heap();
 void print_formatted();
 void print_serial();
 void print_rtc();
-
+void test_pmm();
 // ----
 
 int main(){
@@ -38,13 +39,25 @@ int main(){
 }
 
 void init_kernel(){
-    // Installation and initialization
+    // -- Installation and initialization --
+
+    // Interrupts installation and remmaping
     isr_install();
     irq_install();
     pic_remap();
+
+    // Serial port initialization
     init_serial();
+
+    // Heap memory initialization
     init_heap(); 
+
+    // Physical memory and virtual memory initialization
     init_pmm();
+    init_vmm();
+    vmm_activate();
+
+    // Keyboard driver initialization
     init_keyboard();
 
     // Critical: Enable interrupts!
@@ -139,4 +152,48 @@ void print_rtc() {
     serial_print(itoa(current_time.year, 10));
     serial_print("\n");
 
+}
+
+void test_pmm() {
+    putstr("\n--- PMM Allocation Test ---\n");
+    // Allocate a page
+    void* p1 = pmm_alloc_page();
+
+    if(p1 == 0){
+        putstr("No Free Space!");
+        return;
+    }
+
+    putstr("Allocated p1 at: 0x");
+    putstr(itoa((uint64_t)p1, 16));
+    putstr("\n");
+
+    // Allocate another page
+    void* p2 = pmm_alloc_page();
+
+    if(p2 == 0){
+        putstr("No Free Space!");
+        return;
+    }
+
+    putstr("Allocated p2 at: 0x");
+    putstr(itoa((uint64_t)p2, 16));
+    putstr("\n");
+
+    // Free the first page
+    putstr("Freeing p1...\n");
+    pmm_free_page(p1);
+
+    // Allocate a third page
+    void* p3 = pmm_alloc_page();
+
+    if(p3 == 0){
+        putstr("No Free Space!");
+        return;
+    }
+
+    putstr("Allocated p3 at: 0x");
+    putstr(itoa((uint64_t)p3, 16));
+    putstr(" (should be same as p1)\n");
+    putstr("--------------------------\n");
 }

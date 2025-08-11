@@ -12,23 +12,31 @@
 char cmd_buffer[CMD_BUFFER_SIZE];
 uint16_t cmd_buffer_index = 0;
 
+// Define port and value for QEMU 
+// other emulators or real hardware might need
+// another port and value to shutdown
+#define QEMU_SHUTDOWN_PORT 0x604
+#define QEMU_SHUTDOWN_VALUE 0x2000
+#define QEMU_REBOOT_PORT 0x64
+#define QEMU_REBOOT_VALUE 0xFE
+
 void process_command() {
     putstr("\n"); 
 
     // Commands
-    if (strcmp(cmd_buffer, "help") == 0) {
+    if (!strcmp(cmd_buffer, "help")) {
         // Print help message
         putstr(help_msg);
 
-    } else if (strcmp(cmd_buffer, "clear") == 0) {
+    } else if (!strcmp(cmd_buffer, "clear")) {
         // Clear shell
         cleartext();
         set_cursor_pos(0,0);
     
-    } else if (strcmp(cmd_buffer, "") == 0){
+    } else if (!strcmp(cmd_buffer, "")){
         // No command
     
-    } else if(strcmp(cmd_buffer, "fetch") == 0){
+    } else if(!strcmp(cmd_buffer, "fetch")){
         // Print Fetch messages
         putstr(kernel_msg);
         putstr(fetch_msg);
@@ -43,7 +51,7 @@ void process_command() {
         // Free the allocated string
         kfree(mem_str);
     
-    } else if(strcmp(cmd_buffer, "time") == 0){
+    } else if(!strcmp(cmd_buffer, "time")){
         // Print time and dat from the RTC
         rtc_time_t current_time;
         rtc_read_time(&current_time);
@@ -56,11 +64,19 @@ void process_command() {
         kfree(timestr);
         kfree(datestr);
     
-    } else if(strcmp(cmd_buffer, "memorymap") == 0) {
+    } else if(!strcmp(cmd_buffer, "memorymap")) {
         // Print memory map from BIOS
         pmm_print_map();
         pmm_print_kernel_info();
 
+    } else if(!strcmp(cmd_buffer, "shutdown")){
+        putstr("Shutting down...\n");
+        word_out(QEMU_SHUTDOWN_PORT, QEMU_SHUTDOWN_VALUE);
+    }else if(!strcmp(cmd_buffer, "reboot")) {
+        putstr("Rebooting...\n");
+        memset(cmd_buffer, 0, CMD_BUFFER_SIZE);
+        cmd_buffer_index = 0;
+        byte_out(QEMU_REBOOT_PORT, QEMU_REBOOT_VALUE);
     } else {
         // Unknown command...
         putstr("Unknown command: ");

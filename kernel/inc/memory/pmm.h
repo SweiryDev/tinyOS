@@ -1,7 +1,7 @@
 // Physical Memory Management
 
-#ifndef __MEMORY_PMM_H
-#define __MEMORY_PMM_H
+#ifndef __MEMORY_PMM
+#define __MEMORY_PMM
 
 #include <types.h>
 
@@ -16,8 +16,10 @@ typedef struct __attribute__((packed)) {
 void init_pmm();
 uint64_t pmm_get_total_memory_mb();
 void pmm_print_kernel_info();
-
 void pmm_print_map();
+
+void* pmm_alloc_page();
+void pmm_free_page(void* ptr);
 
 
 #endif
