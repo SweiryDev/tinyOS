@@ -14,6 +14,8 @@
 #include <memory/pmm.h>
 #include <memory/vmm.h>
 
+#include <process/scheduler.h>
+
 #include <shell/shell.h>
 
 
@@ -55,6 +57,12 @@ void init_kernel(){
     // Physical memory and virtual memory initialization
     init_pmm();
     init_vmm();
+
+    // Initiate scheduler 
+    // Critical: before vmm activation
+    init_scheduler();
+
+    // Activate virtual memory 
     vmm_activate();
 
     // Keyboard driver initialization

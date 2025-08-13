@@ -1,9 +1,15 @@
-#include <shell/shell.h>
-#include <driver/vga.h>
-#include <utils/utils.h>
 #include <types.h>
+
+#include <cpu/ports.h>
+
+#include <shell/shell.h>
+
+#include <utils/utils.h>
 #include <utils/messages.h>
+
 #include <driver/rtc.h>
+#include <driver/vga.h>
+
 #include <memory/heap.h>
 #include <memory/pmm.h>
 

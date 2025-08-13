@@ -18,4 +18,7 @@ int strcmp(const char *s1, const char *s2);
 // Set memory
 void *memset(void *s, int c, uint64_t n);
 
+// Copy memory
+void *memcpy(void *dest, const void *src, uint64_t n);
+
 #endif

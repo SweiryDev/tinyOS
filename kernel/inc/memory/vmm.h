@@ -25,4 +25,7 @@ void init_vmm();
 // Load PML4 into the CR3 register to activate paging
 void vmm_activate();
 
+// Allocate a physical page and map it to a virtual address
+void* vmm_alloc_page();
+
 #endif

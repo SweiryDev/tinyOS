@@ -83,3 +83,15 @@ void vmm_activate(){
     __asm__ __volatile__ ("mov %0, %%cr3" : : "r" (pml4_phys_addr));
 }
 
+void* vmm_alloc_page(){
+    // Allocate a free physical page from the pmm
+    void* phys_addr = pmm_alloc_page();
+    
+    // Out of memory ?
+    if(!phys_addr) return 0;
+
+    // For the kernel (virt_addr = phys_addr)
+    vmm_map_page(phys_addr, phys_addr);
+
+    return phys_addr;
+}

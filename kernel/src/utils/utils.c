@@ -75,3 +75,13 @@ void *memset(void *s, int c, uint64_t n) {
     }
     return s;
 }
+
+void *memcpy(void *dest, const void *src, uint64_t n){
+    uint8_t *pdest = (uint8_t*)dest;
+    const uint8_t *psrc = (const uint8_t*)src;
+
+    for (uint64_t i=0; i<n; i++)
+        pdest[i] = psrc[i];
+
+    return dest;
+}

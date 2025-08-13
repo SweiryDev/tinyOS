@@ -1,7 +1,10 @@
 #include <cpu/isr.h>
 #include <cpu/idt.h>
 #include <cpu/ports.h>
+
 #include <driver/vga.h> // Print messages
+
+#include <process/scheduler.h>
 
 const char *exception_messages[] = {
     "Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint",
@@ -18,6 +21,11 @@ isr_t interrupt_handlers[256];
 
 void register_interrupt_handler(uint8_t interrupt_number, isr_t handler){
     interrupt_handlers[interrupt_number] = handler;
+}
+
+// Timer interrupt (IRQ0) handler
+static void timer_callback(registers_t* regs){
+    schedule(regs);
 }
 
 // Main C handler for assembly stubs call
@@ -64,6 +72,9 @@ void isr_install() {
     set_idt_gate(29, (uint64_t)isr_29);
     set_idt_gate(30, (uint64_t)isr_30);
     set_idt_gate(31, (uint64_t)isr_31);
+
+    // Register the timer interrupt handler
+    register_interrupt_handler(32, timer_callback);
 
     // Load IDT
     set_idt();
