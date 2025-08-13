@@ -31,6 +31,8 @@ void print_formatted();
 void print_serial();
 void print_rtc();
 void test_pmm();
+
+void task_b();
 // ----
 
 int main(){
@@ -58,12 +60,14 @@ void init_kernel(){
     init_pmm();
     init_vmm();
 
-    // Initiate scheduler 
-    // Critical: before vmm activation
-    init_scheduler();
-
     // Activate virtual memory 
     vmm_activate();
+
+    // Initiate scheduler 
+    init_scheduler();
+
+    // Create task
+    create_task(task_b);
 
     // Keyboard driver initialization
     init_keyboard();
@@ -72,7 +76,7 @@ void init_kernel(){
     __asm__ __volatile__ ("sti");
 
     // Clear screen and hide the cursor
-    cleartext();
+    // cleartext();
     hide_cursor();
     
     // Print kernel msg 
@@ -204,4 +208,13 @@ void test_pmm() {
     putstr(itoa((uint64_t)p3, 16));
     putstr(" (should be same as p1)\n");
     putstr("--------------------------\n");
+}
+
+void task_b(){
+    volatile vga_char* vga = (vga_char*)VGA_START;
+
+    while(1){
+        vga[79].character = 'B';
+        vga[79].style = vga_color(COLOR_YEL, COLOR_BLK);
+    }
 }

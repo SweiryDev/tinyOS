@@ -24,8 +24,8 @@ void register_interrupt_handler(uint8_t interrupt_number, isr_t handler){
 }
 
 // Timer interrupt (IRQ0) handler
-static void timer_callback(registers_t* regs){
-    schedule(regs);
+static void timer_callback(context_t* context) {
+    schedule(context);
 }
 
 // Main C handler for assembly stubs call
@@ -74,7 +74,7 @@ void isr_install() {
     set_idt_gate(31, (uint64_t)isr_31);
 
     // Register the timer interrupt handler
-    register_interrupt_handler(32, timer_callback);
+    register_interrupt_handler(32, (isr_t)timer_callback);
 
     // Load IDT
     set_idt();
@@ -82,10 +82,10 @@ void isr_install() {
 
 // C handler for all hardware interrupts
 void irq_handler(registers_t *regs) {
-    // Call custom handler function
-    if(interrupt_handlers[regs->int_no] != 0){
+    // Cast the regs pointer to the full context_t for the scheduler
+    if (interrupt_handlers[regs->int_no] != 0) {
         isr_t handler = interrupt_handlers[regs->int_no];
-        handler(regs);
+        handler((context_t*)regs); 
     }
     
     // Send an End-of-Interrupt (EOI) signal to the PICs.

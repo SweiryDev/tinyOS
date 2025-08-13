@@ -13,6 +13,11 @@ typedef struct __attribute__((packed)) {
     uint32_t acpi_extended_attributes;
 } e820_entry_t;
 
+extern uint64_t kernel_size;
+extern uint8_t* pmm_bitmap;
+extern uint64_t pmm_bitmap_size;
+
+
 void init_pmm();
 uint64_t pmm_get_total_memory_mb();
 void pmm_print_kernel_info();

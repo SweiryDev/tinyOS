@@ -1,6 +1,7 @@
 #include <memory/vmm.h>
 #include <memory/pmm.h>
 #include <utils/utils.h>
+#include <driver/vga.h>
 
 
 // Top-level page table (PML4) for the kernel
@@ -30,7 +31,7 @@ void vmm_map_page(void* virtual_address, void* physical_address){
         memset(pdpt, 0, 4096); // Zero out the new page table
         // Link the new PDPT into the PML4, mark as present and writable
         *pml4e = (pte_t)pdpt | PTE_PRESENT | PTE_READ_WRITE;
-    }else{
+    } else {
         // PDPT already set, fetch its address
         pdpt = (page_table_t*)(*pml4e & ~0xFFF); // Mask out flags to get the address
     }
@@ -62,15 +63,37 @@ void vmm_map_page(void* virtual_address, void* physical_address){
     // Set the entry in the page table to the physical page
     pte_t* pte = &(*pt)[pt_index];
     *pte = (pte_t)physical_address | PTE_PRESENT | PTE_READ_WRITE;
-
 }
 
 // Initialize Virtual Memory Manager
 void init_vmm(){
-    // Identity map up to the kernel end address
-    uint64_t kernel_end_addr = (uint64_t)&_kernel_end;
-    for(uint64_t addr=0; addr<kernel_end_addr; addr+=4096){
+    // Map bootloader (low memory)
+    for(uint64_t addr=0; addr<0x9FC00; addr+=4096){
         vmm_map_page((void*)addr, (void*)addr);
+    }
+
+    // Map VGA BUFFER
+    for(uint64_t addr=VGA_START; addr<(VGA_START + VGA_EXTENT); addr+=4096){
+        vmm_map_page((void*)addr, (void*)addr);
+    }
+
+    // Map kernel
+    // Get the memory map from the addresses set by the bootloader
+    uint16_t entry_count = (*(uint16_t*)0x8E00);
+    e820_entry_t* mem_map = (e820_entry_t*)0x9000;
+
+    // Iterate through every entry in the map
+    for (uint16_t i = 0; i < entry_count; i++) {
+        e820_entry_t* entry = &mem_map[i];
+
+        // If the entry is marked "Usable" (Type 1), map the entire region
+        // and isn't the low memory
+        if (entry->type == 1 && entry->base != 0) {
+            // Map some virtual memory for the kernel
+            for (uint64_t addr = entry->base; addr < (entry->base + 0xA00000); addr += 4096) {
+                vmm_map_page((void*)addr, (void*)addr);
+            }
+        }
     }
 }
 
@@ -86,9 +109,12 @@ void vmm_activate(){
 void* vmm_alloc_page(){
     // Allocate a free physical page from the pmm
     void* phys_addr = pmm_alloc_page();
-    
+
     // Out of memory ?
-    if(!phys_addr) return 0;
+    if(!phys_addr){
+        putstr("NO VIRTUAL MEMORY TO ALLOCATE");
+        return 0;
+    }
 
     // For the kernel (virt_addr = phys_addr)
     vmm_map_page(phys_addr, phys_addr);

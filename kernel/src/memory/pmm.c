@@ -11,8 +11,10 @@
 extern uint64_t _kernel_start;
 extern uint64_t _kernel_end;
 
-static uint8_t* pmm_bitmap = 0;
-static uint64_t pmm_bitmap_size = 0;
+uint64_t kernel_size = 0;
+
+uint8_t* pmm_bitmap = 0;
+uint64_t pmm_bitmap_size = 0;
 static uint64_t total_memory_pages = 0;
 
 // Static variable to store the total amount of usable memory in KB
@@ -56,6 +58,7 @@ void pmm_print_kernel_info(){
     uint64_t kernel_start_addr = (uint64_t)&_kernel_start;
     uint64_t kernel_end_addr = (uint64_t)&_kernel_end;
     uint64_t kernel_size_bytes = kernel_end_addr - kernel_start_addr;
+    kernel_size = kernel_size_bytes;
     uint64_t kernel_size_kb = kernel_size_bytes / 1024;
 
     putstr("\n-- Kernel Info --\n");
@@ -95,12 +98,11 @@ void init_pmm() {
     pmm_bitmap_size = total_pages / 8;
     if (pmm_bitmap_size * 8 < total_pages) pmm_bitmap_size++;
 
-
     // Place the bitmap
-    if (largest_region != 0) {
-        pmm_bitmap = (uint8_t*)largest_region->base;
-    }
-        
+    uint64_t kernel_end_addr = (uint64_t)&_kernel_end;
+    if (largest_region != 0) 
+        pmm_bitmap = (uint8_t*)kernel_end_addr;
+    
     // Mark all memory as used by default (of the bitmap)
     memset(pmm_bitmap, 0xFF, pmm_bitmap_size);
 
@@ -120,7 +122,6 @@ void init_pmm() {
 
     // Reserve memory used by the kernel, bios, and bitmap
     uint64_t kernel_start_addr = (uint64_t)&_kernel_start;
-    uint64_t kernel_end_addr = (uint64_t)&_kernel_end;
 
     for(uint64_t addr=0; addr<kernel_end_addr; addr+=4096){
         uint64_t page_num = addr/4096;

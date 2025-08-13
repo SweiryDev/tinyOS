@@ -1,24 +1,26 @@
-#ifndef __PROCESS_TASK
-#define __PROCESS_TASK
+#ifndef __PROCESS_TASK_H
+#define __PROCESS_TASK_H
 
 #include <types.h>
 
-// State structure for general purpose cpu registers
-typedef struct {
+// This struct represents the FULL context saved by the CPU and our ISR stub.
+// The order MUST match the order of PUSH operations.
+typedef struct __attribute__((packed)) {
+    // Pushed by our 'PUSHALL' macro
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
     uint64_t rbp, rdi, rsi, rdx, rcx, rbx, rax;
-    uint64_t rip;       // instruction pointer
-    uint64_t cs;        // code segment
-    uint64_t rflags;    // CPU flags
-    uint64_t rsp;       // stack pointer
-    uint64_t ss;        // stack segment 
-} registers_task_t;
 
-// Task (or process) main structure
-// Linked list
+    // Pushed by our ISR stub
+    uint64_t int_no, err_code;
+
+    // Pushed by the CPU automatically on interrupt
+    uint64_t rip, cs, rflags, rsp, ss;
+} context_t;
+
+// The main structure for a task
 typedef struct task {
-    registers_task_t regs;   // saved registers
-    struct task* next;  // pointer to the next task in the list for the scheduler
+    context_t context;      // The saved context of the task
+    struct task* next;      // Pointer to the next task in the list
 } task_t;
 
 #endif

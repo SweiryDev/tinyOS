@@ -9,7 +9,8 @@
         "messages.h": "c",
         "scheduler.h": "c",
         "utils.h": "c",
-        "vmm.h": "c"
+        "vmm.h": "c",
+        "compare": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
