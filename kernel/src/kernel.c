@@ -67,7 +67,7 @@ void init_kernel(){
     init_scheduler();
 
     // Create task
-    create_task(task_b);
+    // create_task(task_b);
 
     // Keyboard driver initialization
     init_keyboard();

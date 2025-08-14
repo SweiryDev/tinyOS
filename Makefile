@@ -23,7 +23,6 @@ ASM_KERNEL = $(shell find kernel/src/ -type f -name "*.asm")
 OBJ = ${ASM_BOOT:.asm=.o} ${ASM_ENTRY:.asm=.o} ${KERNEL:.c=.o} ${ASM_KERNEL:.c=.o} ${LIBS:.c=.o} 
 
 CCFLAGS = -ggdb -c -ffreestanding -target x86_64-none-elf
-LDFLAGS = -Ttext 0x10000
 LDFLAGS_BIN = --oformat binary
 ASFLAGS = -f elf64 -i bootloader/
 

@@ -13,8 +13,10 @@ SECTIONS {
         boot (.text .data .rodata .bss)
     }
 
-    /* Kernel section starts at 1MB mark (for bootloader separation) */
-    . = 0x10000;
+    /* Page tables starts at 0x10000 up to 0x19000 */
+
+    /* Kernel section starts at 0x19000 address (for bootloader separation) */
+    . = 0x19000;
 
     /* Symbol of physical start address of the kernel */
     _kernel_start = .;

@@ -20,13 +20,20 @@ start:
     mov byte[boot_drive], dl
 
     ; Load next sector (sector 1 is already loaded)
+    ; Max read is 1MB (cx <= 0x80)
     ; Load configuration:
     mov bx, 0x0002  ; load sector #2
-    mov cx, 0x0080  ; load sectors (Sector #2 - Kernel)
+    mov cx, 0x0030  ; load sectors (Sector #2 - bootloader end)
     mov dx, 0x7E00  ; load the sector to location 0x7E00
-                    ; (512 bytes gap)
+
 
     ; Load sector #2
+    call load_bios
+
+    ; Load the rest of the sectors 
+    mov bx, 0x0032 ; load the rest of the sectors
+    mov cx, 0x0080 ; load kernel sectors
+    mov dx, 0xDE00
     call load_bios
 
     ; Clear screen before print
@@ -43,7 +50,6 @@ start:
 
 ; Use the -i flag in NASM to include utils folder
 %include "real_mode/load.asm"
-%include "real_mode/print.asm"
 %include "real_mode/splash.asm"
 
 boot_drive db 0x00
@@ -62,7 +68,10 @@ bootsector_memory:
     ; Jump to bootsector 2
     jmp bootsector_2
 
+%include "real_mode/print.asm"
 %include "real_mode/readmemory.asm"
+%include "real_mode/time.asm"
+%include "real_mode/memory.asm"
 
 times 512 - ($ - bootsector_memory) db 0x00
 
@@ -95,8 +104,7 @@ bootsector_2:
     call switch_to_protected_mode
 
 
-%include "real_mode/time.asm"
-%include "real_mode/memory.asm"
+
 %include "protected_mode/gdt32.asm"
 %include "protected_mode/switch32.asm"
 %include "protected_mode/print32.asm"

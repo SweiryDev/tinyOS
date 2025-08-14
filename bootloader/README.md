@@ -23,7 +23,7 @@ This stage handles the transition to modern CPU operating modes.
 * **Global Descriptor Tables (GDT)**: Two GDTs are set up.
     * **`protected_mode/gdt32.asm`**: Defines the GDT required to enter 32-bit protected mode.
     * **`long_mode/gdt64.asm`**: Defines the GDT with a long mode flag, which is required to enter 64-bit mode.
-* **Paging Setup (`protected_mode/paging32.asm`)**: Before entering long mode, a basic 4-level page table structure is created to identity-map the first 2MB of memory. This is a requirement for long mode.
+* **Paging Setup (`protected_mode/paging32.asm`)**: Before entering long mode, a basic 4-level page table structure is created to identity-map the first 12MB of memory. This is a requirement for long mode.
 * **Mode Switching (`protected_mode/switch32.asm`, `long_mode/switch64.asm`)**: These files contain the precise assembly sequences to load the GDTs, set the CPU control registers (`cr0`, `cr3`, `cr4`), and perform the far jumps needed to successfully transition into protected mode and then long mode.
 
 ### Useful Links

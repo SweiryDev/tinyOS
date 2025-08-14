@@ -30,8 +30,8 @@ char* itoa(int num, int base){
     int i=0;
     int isNegative = 0;
 
-    // Allocate 20 characters
-    char *str = (char*)kmalloc(21);
+    // Allocate 64 characters
+    char *str = (char*)kmalloc(64);
 
     if(num == 0){
         str[i++] = '0';

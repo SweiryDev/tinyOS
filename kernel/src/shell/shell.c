@@ -52,7 +52,7 @@ void process_command() {
         char* mem_str = itoa(total_mem_mb, 10);
         
         // Print the information
-        putstrf("Memory: %s KB\n", mem_str);
+        putstrf("Memory: %sMB\n", mem_str);
 
         // Free the allocated string
         kfree(mem_str);

@@ -43,13 +43,9 @@ void pmm_print_map() {
         e820_entry_t* entry = &mem_map[i];
         const char* type_str = (entry->type < 6) ? E820_TYPE_STRINGS[entry->type] : E820_TYPE_STRINGS[2];
 
-        putstr("Base: 0x");
-        putstr(itoa(entry->base, 16));
-        putstr(" | Length: 0x");
-        putstr(itoa(entry->length, 16));
-        putstr(" | Type: ");
-        putstr(type_str);
-        putstr("\n");
+        putstrf("Base: 0x%x", &(entry->base));
+        putstrf(" | Length: 0x%x", &(entry->length));
+        putstrf(" | Type: %s\n", type_str);
     }
     putstr("-----------------------\n");
 }
@@ -62,13 +58,9 @@ void pmm_print_kernel_info(){
     uint64_t kernel_size_kb = kernel_size_bytes / 1024;
 
     putstr("\n-- Kernel Info --\n");
-    putstr("Kernel Start: 0x");
-    putstr(itoa(kernel_start_addr, 16));
-    putstr("\nKernel End:   0x");
-    putstr(itoa(kernel_end_addr, 16));
-    putstr("\nKernel Size:  ");
-    putstr(itoa(kernel_size_kb, 10));
-    putstr(" KB\n");
+    putstrf("Kernel Start: 0x%x\n", &kernel_start_addr);
+    putstrf("Kernel End:   0x%x\n", &kernel_end_addr);
+    putstrf("Kernel Size:  %dKB\n", &kernel_size_kb);
     putstr("-------------------\n");
 
 }
