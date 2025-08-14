@@ -23,10 +23,9 @@ uint16_t cmd_buffer_index = 0;
 // another port and value to shutdown
 #define QEMU_SHUTDOWN_PORT 0x604
 #define QEMU_SHUTDOWN_VALUE 0x2000
-#define QEMU_REBOOT_PORT 0x64
-#define QEMU_REBOOT_VALUE 0xFE
 
 void process_command() {
+    clear_last_line_clock();
     putstr("\n"); 
 
     // Commands
@@ -49,13 +48,7 @@ void process_command() {
         
         // Get total memory in KB
         uint64_t total_mem_mb = pmm_get_total_memory_mb();
-        char* mem_str = itoa(total_mem_mb, 10);
-        
-        // Print the information
-        putstrf("Memory: %sMB\n", mem_str);
-
-        // Free the allocated string
-        kfree(mem_str);
+        putstrf("Total memory: %dMB\n", &total_mem_mb);
     
     } else if(!strcmp(cmd_buffer, "time")){
         // Print time and dat from the RTC
@@ -76,13 +69,10 @@ void process_command() {
         pmm_print_kernel_info();
 
     } else if(!strcmp(cmd_buffer, "shutdown")){
+
         putstr("Shutting down...\n");
         word_out(QEMU_SHUTDOWN_PORT, QEMU_SHUTDOWN_VALUE);
-    }else if(!strcmp(cmd_buffer, "reboot")) {
-        putstr("Rebooting...\n");
-        memset(cmd_buffer, 0, CMD_BUFFER_SIZE);
-        cmd_buffer_index = 0;
-        byte_out(QEMU_REBOOT_PORT, QEMU_REBOOT_VALUE);
+    
     } else {
         // Unknown command...
         putstr("Unknown command: ");

@@ -32,7 +32,7 @@ void print_serial();
 void print_rtc();
 void test_pmm();
 
-void task_b();
+void clock_task();
 // ----
 
 int main(){
@@ -67,7 +67,7 @@ void init_kernel(){
     init_scheduler();
 
     // Create task
-    // create_task(task_b);
+    create_task(clock_task);
 
     // Keyboard driver initialization
     init_keyboard();
@@ -76,7 +76,7 @@ void init_kernel(){
     __asm__ __volatile__ ("sti");
 
     // Clear screen and hide the cursor
-    // cleartext();
+    cleartext();
     hide_cursor();
     
     // Print kernel msg 
@@ -210,11 +210,29 @@ void test_pmm() {
     putstr("--------------------------\n");
 }
 
-void task_b(){
-    volatile vga_char* vga = (vga_char*)VGA_START;
+void clock_task() {
+    // A pointer directly to the VGA text buffer.
+    volatile vga_char *vga = (vga_char*) VGA_START;
 
-    while(1){
-        vga[79].character = 'B';
-        vga[79].style = vga_color(COLOR_YEL, COLOR_BLK);
+    // The time string "HH:MM:SS" is 8 characters long.
+    const uint16_t start_pos = (VGA_HEIGHT - 1) * VGA_WIDTH + (VGA_WIDTH - 8);
+
+    // Prepare the style byte for yellow text on a black background.
+    uint8_t style = vga_color(COLOR_YEL, COLOR_BLK);
+    rtc_time_t current_time;
+
+    while (1) {
+        // 1. Get the time and format it into a string.
+        rtc_read_time(&current_time);
+        char *timestr = time_string(&current_time);
+
+        // 2. Write the time string directly to the VGA buffer.
+        for (uint8_t i = 0; timestr[i] != '\0'; i++) {
+            vga[start_pos + i].character = timestr[i];
+            vga[start_pos + i].style = style;
+        }
+
+        // 3. Free the allocated string to prevent memory leaks.
+        kfree(timestr);
     }
 }

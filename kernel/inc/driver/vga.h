@@ -44,6 +44,8 @@ typedef struct  __attribute__((packed)) {
 // Get the char to use as the style char
 uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color);
 
+void clear_last_line_clock();
+
 // Clear the screen with a color
 void cleartext();
 void cleartext_color(const uint8_t fg_color, const uint8_t bg_color);

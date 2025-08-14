@@ -2,22 +2,16 @@
 #define __ISR
 
 #include <types.h>
-
-// Register order pushed by PUSHALL macro 
-typedef struct __attribute__((packed)) {
-    uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
-    uint64_t rdi, rsi, rbp, rdx, rcx, rbx, rax;
-    uint64_t int_no, err_code; // Pushed by our ISR stubs
-} registers_t;
+#include <process/task.h>
 
 // Function Pointer type for interrupt handler
-typedef void (*isr_t)(registers_t*);
+typedef void (*isr_t)(context_t*);
 
 // Register custom handler for a given interrupt
 void register_interrupt_handler(uint8_t interrupt_number, isr_t handler);
 
 // C level interrupt handler called from assembly 
-void isr_handler(registers_t *regs);
+void isr_handler(context_t* regs);
 void isr_install();
 
 // 32 assembly ISR stubs 
@@ -54,7 +48,7 @@ extern void isr_29();
 extern void isr_30();
 extern void isr_31();
 
-void irq_handler(registers_t *regs);
+void irq_handler(context_t *regs);
 void irq_install();
 
 // IRQ stubs

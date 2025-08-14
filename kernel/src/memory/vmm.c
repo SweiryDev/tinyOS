@@ -89,8 +89,6 @@ void init_vmm(){
         // If the entry is marked "Usable" (Type 1), map the entire region
         // and isn't the low memory
         if (entry->type == 1 && entry->base != 0) {
-            uint64_t length_mb = entry->length/(1024*1024);
-            putstrf("Entry Length: %dMB", &(length_mb));
             // Map virtual memory for the kernel
             for (uint64_t addr = entry->base; addr < (entry->base + entry->length); addr += 4096) {
                 vmm_map_page((void*)addr, (void*)addr);

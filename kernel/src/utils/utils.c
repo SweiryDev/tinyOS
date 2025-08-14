@@ -33,6 +33,11 @@ char* itoa(int num, int base){
     // Allocate 64 characters
     char *str = (char*)kmalloc(64);
 
+    if (str == 0) {
+        putstr("itoa: kmalloc failed! Out of heap memory.\n");
+        while(1); // Halt the system
+    }
+
     if(num == 0){
         str[i++] = '0';
         str[i] = '\0';

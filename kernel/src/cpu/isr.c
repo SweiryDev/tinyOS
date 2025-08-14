@@ -29,7 +29,7 @@ static void timer_callback(context_t* context) {
 }
 
 // Main C handler for assembly stubs call
-void isr_handler(registers_t *regs) {
+void isr_handler(context_t *regs) {
     putstr_color("Received Interrupt: ", COLOR_WHT, COLOR_RED);
     putstr_color(exception_messages[regs->int_no], COLOR_WHT, COLOR_RED);
     
@@ -74,18 +74,18 @@ void isr_install() {
     set_idt_gate(31, (uint64_t)isr_31);
 
     // Register the timer interrupt handler
-    register_interrupt_handler(32, (isr_t)timer_callback);
+    register_interrupt_handler(32, timer_callback);
 
     // Load IDT
     set_idt();
 }
 
 // C handler for all hardware interrupts
-void irq_handler(registers_t *regs) {
+void irq_handler(context_t* regs) {
     // Cast the regs pointer to the full context_t for the scheduler
     if (interrupt_handlers[regs->int_no] != 0) {
         isr_t handler = interrupt_handlers[regs->int_no];
-        handler((context_t*)regs); 
+        handler(regs); 
     }
     
     // Send an End-of-Interrupt (EOI) signal to the PICs.

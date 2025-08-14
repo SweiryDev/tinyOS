@@ -23,7 +23,6 @@ const char *help_msg =
     "Commands:\n"
     "help - print this memory\n"
     "shutdown - power off the OS\n"
-    "reboot - reboot the OS\n"
     "clear - clear the shell\n"
     "time - print time and date from the RTC\n"
     "fetch - print software and hardware info\n"

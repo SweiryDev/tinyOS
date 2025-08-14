@@ -14,6 +14,20 @@ uint8_t vga_color(const uint8_t fg_color, const uint8_t bg_color){
     return (bg_color << 4) | (fg_color & 0x0F);
 }
 
+void clear_last_line_clock(){
+    const char null_space = 0;
+    uint8_t clear_color = vga_color(DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
+
+    const vga_char clear_char = {
+        .character = null_space,
+        .style = clear_color
+    };
+
+    for(uint64_t i = (VGA_EXTENT-9); i < VGA_EXTENT; i++) {
+        VGA_TEXT[i] = clear_char;
+    }
+}
+
 void cleartext(){
     cleartext_color(DEFAULT_COLOR_FG, DEFAULT_COLOR_BG);
 }
@@ -97,7 +111,7 @@ void putstrf(const char *string, const void *arg){
         if(*string == '%'){
         
             if(*(string + 1) == 'd' || *(string + 1) == 'D'){  // Write integer (base 10)
-                char *tmp = itoa(*((int*)arg), 10);
+                char *tmp = itoa(*((uint64_t*)arg), 10);
                 int i = 0;
             
                 while(*(tmp + i) != '\0'){
@@ -109,7 +123,7 @@ void putstrf(const char *string, const void *arg){
                 string++;
             }
             else if (*(string + 1) == 'x' || *(string + 1) == 'X'){ // Write integer (base 16)
-                char *tmp = itoa(*((int*)arg), 16);
+                char *tmp = itoa(*((uint64_t*)arg), 16);
                 int i = 0;
             
                 while(*(tmp + i) != '\0'){
@@ -121,7 +135,7 @@ void putstrf(const char *string, const void *arg){
                 string++;
             }
             else if (*(string + 1) == 'b' || *(string + 1) == 'B'){ // Write integer (base 2)
-                char *tmp = itoa(*((int*)arg), 2);
+                char *tmp = itoa(*((uint64_t*)arg), 2);
                 int i = 0;
             
                 while(*(tmp + i) != '\0'){

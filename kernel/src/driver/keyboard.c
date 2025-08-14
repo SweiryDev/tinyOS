@@ -28,7 +28,7 @@ const char shift_scancode_map[] = {
 };
 
 // The keyboard interrupt handler
-static void keyboard_callback(registers_t *regs) {
+static void keyboard_callback(context_t *regs) {
     // Read the scan code from the keyboard's data port
     uint8_t scancode = byte_in(0x60);
     
