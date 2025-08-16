@@ -1,6 +1,7 @@
 #include <cpu/ports.h>
 #include <cpu/isr.h>
 #include <cpu/pic.h>
+#include <cpu/syscall.h>
 
 #include <utils/messages.h>
 #include <utils/utils.h>
@@ -19,7 +20,6 @@
 #include <shell/shell.h>
 
 
-
 // -- Functions Signatures --
 // Initialize the kernel 
 void init_kernel();
@@ -31,7 +31,9 @@ void print_formatted();
 void print_serial();
 void print_rtc();
 void test_pmm();
+void test_syscall();
 
+// Tasks:
 void clock_task();
 // ----
 
@@ -235,4 +237,12 @@ void clock_task() {
         // 3. Free the allocated string to prevent memory leaks.
         kfree(timestr);
     }
+}
+
+void test_syscall(){
+    // syscall(SYS_YIELD);
+    
+    const char* test_string = "Hello from syscall!\n";
+
+    sys_write_console(test_string);
 }

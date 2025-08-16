@@ -22,7 +22,7 @@ ASM_KERNEL = $(shell find kernel/src/ -type f -name "*.asm")
 # CRITICAL: assembly must be linked first
 OBJ = ${ASM_BOOT:.asm=.o} ${ASM_ENTRY:.asm=.o} ${KERNEL:.c=.o} ${ASM_KERNEL:.c=.o} ${LIBS:.c=.o} 
 
-CCFLAGS = -ggdb -c -ffreestanding -target x86_64-none-elf
+CCFLAGS = -ggdb -c -ffreestanding -target x86_64-none-elf -mno-red-zone
 LDFLAGS_BIN = --oformat binary
 ASFLAGS = -f elf64 -i bootloader/
 

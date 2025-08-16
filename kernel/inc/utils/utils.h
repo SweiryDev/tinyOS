@@ -10,7 +10,7 @@ uint64_t str_len(const char* str);
 void reverse(char* str);
 
 // Integer to ASCII
-char* itoa(int num, int base);
+char* itoa(uint64_t num, int base);
 
 // Compare strings
 int strcmp(const char *s1, const char *s2);

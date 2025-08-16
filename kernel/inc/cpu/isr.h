@@ -48,6 +48,9 @@ extern void isr_29();
 extern void isr_30();
 extern void isr_31();
 
+// System call interrupt stub
+extern void isr_128();
+
 void irq_handler(context_t *regs);
 void irq_install();
 

@@ -1,5 +1,6 @@
 #include <utils/utils.h>
 #include <memory/heap.h>
+#include <driver/vga.h>
 #include <types.h>
 
 uint64_t str_len(const char* str){
@@ -26,7 +27,7 @@ void reverse(char* str){
     }   
 }
 
-char* itoa(int num, int base){
+char* itoa(uint64_t num, int base){
     int i=0;
     int isNegative = 0;
 

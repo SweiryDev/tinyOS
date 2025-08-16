@@ -1,6 +1,7 @@
 #include <cpu/isr.h>
 #include <cpu/idt.h>
 #include <cpu/ports.h>
+#include <cpu/syscall.h>
 
 #include <driver/vga.h> // Print messages
 
@@ -13,33 +14,45 @@ const char *exception_messages[] = {
     "Stack Fault", "General Protection Fault", "Page Fault", "Unknown Interrupt",
     "Coprocessor Fault", "Alignment Check", "Machine Check", "Reserved",
     "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
-    "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved"
-};
+    "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved"};
 
 // Interrupt handlers array
 isr_t interrupt_handlers[256];
 
-void register_interrupt_handler(uint8_t interrupt_number, isr_t handler){
+void register_interrupt_handler(uint8_t interrupt_number, isr_t handler)
+{
     interrupt_handlers[interrupt_number] = handler;
 }
 
 // Timer interrupt (IRQ0) handler
-static void timer_callback(context_t* context) {
+static void timer_callback(context_t *context)
+{
     schedule(context);
 }
 
 // Main C handler for assembly stubs call
-void isr_handler(context_t *regs) {
+void isr_handler(context_t *regs)
+{
+
+    // Check for system call interrupt
+    if (regs->int_no == 128)
+    {
+        syscall_handler(regs);
+        return;
+    }
+
     putstr_color("Received Interrupt: ", COLOR_WHT, COLOR_RED);
     putstr_color(exception_messages[regs->int_no], COLOR_WHT, COLOR_RED);
-    
+
     // Ignore for now...
     // Halt the system. In a real OS, we might try to recover.
-    while(1) __asm__("hlt");
+    while (1)
+        __asm__("hlt");
 }
 
 // Install ISRs into the IDT
-void isr_install() {
+void isr_install()
+{
     set_idt_gate(0, (uint64_t)isr_0);
     set_idt_gate(1, (uint64_t)isr_1);
     set_idt_gate(2, (uint64_t)isr_2);
@@ -73,6 +86,9 @@ void isr_install() {
     set_idt_gate(30, (uint64_t)isr_30);
     set_idt_gate(31, (uint64_t)isr_31);
 
+    // Register system call handler
+    set_idt_gate(128, (uint64_t)isr_128);
+
     // Register the timer interrupt handler
     register_interrupt_handler(32, timer_callback);
 
@@ -81,23 +97,27 @@ void isr_install() {
 }
 
 // C handler for all hardware interrupts
-void irq_handler(context_t* regs) {
+void irq_handler(context_t *regs)
+{
     // Cast the regs pointer to the full context_t for the scheduler
-    if (interrupt_handlers[regs->int_no] != 0) {
+    if (interrupt_handlers[regs->int_no] != 0)
+    {
         isr_t handler = interrupt_handlers[regs->int_no];
-        handler(regs); 
+        handler(regs);
     }
-    
+
     // Send an End-of-Interrupt (EOI) signal to the PICs.
     // This is critical, otherwise the PIC won't send any more interrupts.
-    if (regs->int_no >= 40) {
+    if (regs->int_no >= 40)
+    {
         byte_out(0xA0, 0x20); // EOI to slave PIC
     }
     byte_out(0x20, 0x20); // EOI to master PIC
 }
 
 // Install IRQ handlers to the IDT
-void irq_install() {
+void irq_install()
+{
     set_idt_gate(32, (uint64_t)irq_0);
     set_idt_gate(33, (uint64_t)irq_1);
     set_idt_gate(34, (uint64_t)irq_2);

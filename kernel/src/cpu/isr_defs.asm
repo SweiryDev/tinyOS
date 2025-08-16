@@ -74,8 +74,19 @@ isr_common_stub:
     POPALL       ; Restore all registers
     
     add rsp, 16  ; Clean up the interrupt number and error code from the stack
-    sti          ; Re-enable interrupts
     iretq        ; Return from interrupt
+    sti          ; Re-enable interrupts
+
+
+; System Call ISR macros
+%macro ISR_SYSCALL 1
+  global isr_%1
+  isr_%1:
+    cli
+    push qword 0  ; Dummy error code
+    push qword %1 ; Interrupt number (128)
+    jmp isr_common_stub
+%endmacro
 
 ; --- Generate the ISR stubs ---
 ISR_NOERRCODE 0
@@ -111,10 +122,15 @@ ISR_ERRCODE   29
 ISR_ERRCODE   30
 ISR_ERRCODE   31
 
+; System call ISR stub
+ISR_SYSCALL   128
+
 irq_common_stub:
     PUSHALL
+
     mov rdi, rsp ; Pass a pointer to the saved registers to the C handler
     call irq_handler
+    
     POPALL
     add rsp, 16  ; Clean up IRQ number and dummy error code
     sti
