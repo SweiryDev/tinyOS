@@ -35,11 +35,18 @@ void test_syscall();
 
 // Tasks:
 void clock_task();
+void rotate_animation();
 // ----
+
+// Global time for the kernel
+rtc_time_t *current_time;
+
 
 int main(){
     // Initialize the kernel
     init_kernel();
+
+    create_task(rotate_animation);
 
     return 0;
 }
@@ -83,6 +90,7 @@ void init_kernel(){
     
     // Print kernel msg 
     putstr(kernel_msg);
+    putstr("Enter help to get shell commands\n");
     putstr(">");
 }
 
@@ -221,12 +229,12 @@ void clock_task() {
 
     // Prepare the style byte for yellow text on a black background.
     uint8_t style = vga_color(COLOR_YEL, COLOR_BLK);
-    rtc_time_t current_time;
+    char *timestr;
 
     while (1) {
         // 1. Get the time and format it into a string.
-        rtc_read_time(&current_time);
-        char *timestr = time_string(&current_time);
+        rtc_read_time(current_time);
+        timestr = time_string(current_time);
 
         // 2. Write the time string directly to the VGA buffer.
         for (uint8_t i = 0; timestr[i] != '\0'; i++) {
@@ -238,6 +246,41 @@ void clock_task() {
         kfree(timestr);
     }
 }
+
+// Animation task 
+void rotate_animation(){
+    // A pointer directly to the VGA text buffer
+    volatile vga_char *vga = (vga_char*) VGA_START;
+    const uint16_t start_pos = VGA_WIDTH - 1;
+
+    // Prepare the style byte 
+    uint8_t style = vga_color(COLOR_LPP, COLOR_BLK);
+
+    // char set for the animation
+    const char rotate_chars[4] = {'/', '-', '\\', '|'};
+
+    // Timer and counter for the animation progression
+    uint8_t counter = 0;
+    uint8_t last_sec = 0;
+
+    while(1){
+        // Change char every second
+        if(last_sec == current_time->second) continue;
+
+        // Rotate chars
+        if(counter > 2) counter = 0;
+        else counter++;
+
+        // Print char to the screen
+        vga[start_pos].character = rotate_chars[counter];
+        vga[start_pos].style = style;
+
+        // Update internal timer
+        last_sec = current_time->second;
+    }
+
+}
+
 
 void test_syscall(){
     // syscall(SYS_YIELD);

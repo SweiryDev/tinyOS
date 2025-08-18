@@ -14,10 +14,19 @@ const char *kernel_msg =
     "                         \\$$    $$                    \n"
     "                          \\$$$$$$                     \n\n";
 
-const char *fetch_msg = 
-    "tinyOS - FETCH MESSAGE\n"
-    "NEED TO UPDATE MESSAGE!\n";
+const char *fetch_msg =
+    "    .------------------------.\n"
+    "    |                        |\n"
+    "    |    tinyOS v0.1         |\n"
+    "    |                        |\n"
+    "    '------------------------'\n"
+    "      \\   ^__^\n"
+    "       \\  (oo)\\_______\n"
+    "          (__)\\       )\\/\\\n"
+    "              ||----w |\n"
+    "              ||     ||\n";
 
+    
 const char *help_msg = 
     "tinyOS v0.1. \n"
     "Commands:\n"

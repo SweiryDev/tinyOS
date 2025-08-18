@@ -43,13 +43,16 @@ void process_command() {
     
     } else if(!strcmp(cmd_buffer, "fetch")){
         // Print Fetch messages
-        putstr(kernel_msg);
         putstr(fetch_msg);
+        putstr("---------------------\n");
         
         // Get total memory in KB
         uint64_t total_mem_mb = pmm_get_total_memory_mb();
         putstrf("Total memory: %dMB\n", &total_mem_mb);
-    
+        
+        putstr("---------------------\n");
+        
+
     } else if(!strcmp(cmd_buffer, "time")){
         // Print time and dat from the RTC
         rtc_time_t current_time;
