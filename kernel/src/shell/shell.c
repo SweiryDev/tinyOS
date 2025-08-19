@@ -28,6 +28,12 @@ void process_command() {
     clear_last_line_clock();
     putstr("\n"); 
 
+    // Trim leading whitespace
+    int i = 0, z = 0;
+    while (cmd_buffer[i] == ' ')
+        i++;
+    while ((cmd_buffer[z++] = cmd_buffer[i++]));
+
     // Commands
     if (!strcmp(cmd_buffer, "help")) {
         // Print help message
