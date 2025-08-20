@@ -30,6 +30,12 @@ void process_command() {
     char* shell_buffer = duplicate_trim_leading_spaces(cmd_buffer);
 
 
+    // Trim leading whitespace
+    int i = 0, z = 0;
+    while (cmd_buffer[i] == ' ')
+        i++;
+    while ((cmd_buffer[z++] = cmd_buffer[i++]));
+
     // Commands
     if (!strcmp(shell_buffer, "help")) {
         // Print help message

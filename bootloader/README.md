@@ -7,11 +7,11 @@ This bootloader handles the complete startup sequence for **tinyOS**. It begins 
 This initial stage runs directly after being loaded by the BIOS. All operations here use BIOS interrupts.
 
 * **Core Logic (`boot.asm`)**: The main file for the bootloader. The first 512 bytes are loaded by the BIOS, which then loads the subsequent sectors.
-* **Multi-Sector Loading (`utils/load.asm`)**: Contains the `load_bios` function, which uses the `int 0x13` BIOS interrupt to read additional sectors from the boot drive.
-* **Custom Splash Screen (`utils/splash.asm`, `utils/print.asm`)**: On boot, the OS clears the screen, hides the cursor, and displays a custom ASCII art logo, the current time, and the available memory.
+* **Multi-Sector Loading (`real_mode/load.asm`)**: Contains the `load_bios` function, which uses the `int 0x13` BIOS interrupt to read additional sectors from the boot drive.
+* **Custom Splash Screen (`real_mode/splash.asm`, `real_mode/print.asm`)**: On boot, the OS clears the screen, hides the cursor, and displays a custom ASCII art logo, the current time, and the available memory.
 * **Hardware Interfacing (BIOS)**: The bootloader gets system information using BIOS interrupts.
-    * **Time Services (`utils/time.asm`)**: Reads the current time from the RTC using `int 0x1A`.
-    * **Memory Services (`utils/memory.asm`)**: Detects the amount of conventional memory using `int 0x12`.
+    * **Time Services (`real_mode/time.asm`)**: Reads the current time from the RTC using `int 0x1A`.
+    * **Memory Services (`real_mode/memory.asm`)**: Detects the amount of conventional memory using `int 0x12`.
 * **Interactive Prompt**: After displaying system info, the bootloader waits for the user to press **Enter** before proceeding, using `int 0x16`.
 
 ---
