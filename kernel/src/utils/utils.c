@@ -3,6 +3,26 @@
 #include <driver/vga.h>
 #include <types.h>
 
+// Create a duplicate of the string and clear spaces
+char* duplicate_trim_leading_spaces(const char* src){
+    // Get length and reserve memory
+    uint64_t len = str_len(src);
+    char* dup_str = (char*)kmalloc(len);
+
+    // Copy string (include null terminator)
+    memcpy(dup_str, src, len+1);
+
+    if(len == 0) return dup_str;
+
+    uint64_t i=0;
+    while(dup_str[i] == ' ')
+        i++;
+
+    dup_str = (dup_str + i);
+
+    return dup_str;
+}
+
 uint64_t str_len(const char* str){
     uint64_t counter = 0;
 

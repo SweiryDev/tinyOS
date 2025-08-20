@@ -3,6 +3,10 @@
 
 #include <types.h>
 
+
+// Create a duplicate of the string and clear spaces
+char* duplicate_trim_leading_spaces(const char* src);
+
 // Get string length
 uint64_t str_len(const char* str);
 

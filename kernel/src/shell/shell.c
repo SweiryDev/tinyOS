@@ -27,21 +27,23 @@ uint16_t cmd_buffer_index = 0;
 void process_command() {
     clear_last_line_clock();
     putstr("\n"); 
+    char* shell_buffer = duplicate_trim_leading_spaces(cmd_buffer);
+
 
     // Commands
-    if (!strcmp(cmd_buffer, "help")) {
+    if (!strcmp(shell_buffer, "help")) {
         // Print help message
         putstr(help_msg);
 
-    } else if (!strcmp(cmd_buffer, "clear")) {
+    } else if (!strcmp(shell_buffer, "clear")) {
         // Clear shell
         cleartext();
         set_cursor_pos(0,0);
     
-    } else if (!strcmp(cmd_buffer, "")){
+    } else if (!strcmp(shell_buffer, "")){
         // No command
     
-    } else if(!strcmp(cmd_buffer, "fetch")){
+    } else if(!strcmp(shell_buffer, "fetch")){
         // Print Fetch messages
         putstr(fetch_msg);
         putstr("---------------------\n");
@@ -53,7 +55,7 @@ void process_command() {
         putstr("---------------------\n");
         
 
-    } else if(!strcmp(cmd_buffer, "time")){
+    } else if(!strcmp(shell_buffer, "time")){
         // Print time and dat from the RTC
         rtc_time_t current_time;
         rtc_read_time(&current_time);
@@ -66,12 +68,12 @@ void process_command() {
         kfree(timestr);
         kfree(datestr);
     
-    } else if(!strcmp(cmd_buffer, "memorymap")) {
+    } else if(!strcmp(shell_buffer, "memorymap")) {
         // Print memory map from BIOS
         pmm_print_map();
         pmm_print_kernel_info();
 
-    } else if(!strcmp(cmd_buffer, "shutdown")){
+    } else if(!strcmp(shell_buffer, "shutdown")){
 
         putstr("Shutting down...\n");
         word_out(QEMU_SHUTDOWN_PORT, QEMU_SHUTDOWN_VALUE);
@@ -79,13 +81,17 @@ void process_command() {
     } else {
         // Unknown command...
         putstr("Unknown command: ");
-        putstr(cmd_buffer);
+        putstr(shell_buffer);
         putstr("\n");
     }
 
     // Clear the buffer and print the prompt for the next command
     cmd_buffer_index = 0;
     memset(cmd_buffer, 0, CMD_BUFFER_SIZE);
+
+    // Free the duplicate space clear string
+    kfree(shell_buffer);
+
     putstr(">");
 }
 
@@ -93,6 +99,7 @@ void process_command() {
 void shell_keyboard_handler(char key) {
     if (key == '\n') { // Enter key
         process_command();
+
     } else if (key == '\b') { // Backspace key
         if (cmd_buffer_index > 0) {
             cmd_buffer_index--;
@@ -102,7 +109,11 @@ void shell_keyboard_handler(char key) {
             putchar(' ');
             reverse_cursor();
         }
+
     } else {
+        
+        if(key == '\t') return; // Ignore tab key in the shell
+
         // Add character to buffer if there is space
         if (cmd_buffer_index < CMD_BUFFER_SIZE - 1) {
             cmd_buffer[cmd_buffer_index++] = key;
