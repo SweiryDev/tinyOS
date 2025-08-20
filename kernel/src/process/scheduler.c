@@ -1,4 +1,5 @@
 #include <process/scheduler.h>
+#include <memory/pmm.h>
 #include <memory/vmm.h>
 #include <utils/utils.h>
 #include <driver/vga.h>
@@ -17,13 +18,13 @@ void init_scheduler() {
 void schedule(context_t* context) {
     if (current_task == 0) return;
 
-    // 1. Save the full context of the current task
+    // Save the full context of the current task
     memcpy(&current_task->context, context, sizeof(context_t));
 
-    // 2. Select the next task
+    // Select the next task
     current_task = current_task->next;
 
-    // 3. Restore the full context of the new task
+    // Restore the full context of the new task
     memcpy(context, &current_task->context, sizeof(context_t));
 }
 

@@ -17,7 +17,7 @@ typedef uint64_t pte_t;
 typedef pte_t page_table_t[512];
 
 // Map a single virtual page to physical page
-void vmm_map_page(void* virtual_address, void* physical_address);
+void vmm_map_page(void* virtual_address, void* physical_address, uint64_t flags);
 
 // Initialize kernel address space
 void init_vmm();

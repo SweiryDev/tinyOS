@@ -13,6 +13,9 @@ SECTIONS {
         boot (.text .data .rodata .bss)
     }
 
+    /* Export gdt64 start address to the kernel */
+    gdt64_address = gdt64_start;
+
     /* Page tables starts at 0x10000 up to 0x19000 */
 
     /* Kernel section starts at 0x19000 address (for bootloader separation) */

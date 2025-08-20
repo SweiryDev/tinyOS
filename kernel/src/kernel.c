@@ -1,6 +1,7 @@
 #include <cpu/ports.h>
 #include <cpu/isr.h>
 #include <cpu/pic.h>
+#include <cpu/tss.h>
 #include <cpu/syscall.h>
 
 #include <utils/messages.h>
@@ -74,6 +75,9 @@ void init_kernel(){
 
     // Initiate scheduler 
     init_scheduler();
+
+    // Set the Task State Segment (TSS)
+    init_tss();
 
     // Create task
     create_task(clock_task);

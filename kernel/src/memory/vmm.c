@@ -10,7 +10,7 @@ __attribute__((aligned(4096)))
 static page_table_t kernel_pml4[1];
 
 // Map a single 4KB virtual page to a physical page.
-void vmm_map_page(void* virtual_address, void* physical_address){
+void vmm_map_page(void* virtual_address, void* physical_address, uint64_t flags){
     uint64_t virt_addr = (uint64_t)virtual_address;
 
     // Address mapping debugging:
@@ -63,19 +63,19 @@ void vmm_map_page(void* virtual_address, void* physical_address){
     
     // Set the entry in the page table to the physical page
     pte_t* pte = &(*pt)[pt_index];
-    *pte = (pte_t)physical_address | PTE_PRESENT | PTE_READ_WRITE;
+    *pte = (pte_t)physical_address | PTE_PRESENT | PTE_READ_WRITE | flags;
 }
 
 // Initialize Virtual Memory Manager
 void init_vmm(){
     // Map bootloader (low memory)
     for(uint64_t addr=0; addr<0x9FC00; addr+=4096){
-        vmm_map_page((void*)addr, (void*)addr);
+        vmm_map_page((void*)addr, (void*)addr, PTE_USER_SUPER);
     }
 
     // Map VGA BUFFER
     for(uint64_t addr=VGA_START; addr<(VGA_START + VGA_EXTENT); addr+=4096){
-        vmm_map_page((void*)addr, (void*)addr);
+        vmm_map_page((void*)addr, (void*)addr, PTE_USER_SUPER);
     }
 
     // Map kernel
@@ -91,7 +91,7 @@ void init_vmm(){
         if (entry->type == 1 && entry->base != 0) {
             // Map virtual memory for the kernel
             for (uint64_t addr = entry->base; addr < (entry->base + entry->length); addr += 4096) {
-                vmm_map_page((void*)addr, (void*)addr);
+                vmm_map_page((void*)addr, (void*)addr, PTE_USER_SUPER);
             }
         }
     }
@@ -117,7 +117,7 @@ void* vmm_alloc_page(){
     }
 
     // For the kernel (virt_addr = phys_addr)
-    vmm_map_page(phys_addr, phys_addr);
+    vmm_map_page(phys_addr, phys_addr, PTE_USER_SUPER);
 
     return phys_addr;
 }
